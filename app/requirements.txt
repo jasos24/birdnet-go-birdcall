@@ -1,0 +1,5 @@
+flask==3.0.3
+aiohttp==3.10.5
+aiortc==1.8.0
+av==12.3.0
+numpy==2.0.1
