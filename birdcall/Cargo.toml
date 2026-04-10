@@ -1,0 +1,15 @@
+[package]
+name = "birdcall"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serenity = { version = "0.10", default-features = false, features = ["client", "gateway", "rustls_backend", "model"] }
+songbird = "0.3"
+tokio = { version = "1", features = ["full"] }
+
+gstreamer = "0.18"
+gstreamer-base = "0.18"
+gstreamer-rtsp-server = "0.18"
+
+anyhow = "1"
