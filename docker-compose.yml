@@ -1,16 +1,19 @@
 version: "3.9"
 
 services:
+
   mediamtx:
     image: bluenviron/mediamtx:latest
     container_name: mediamtx
     restart: unless-stopped
     volumes:
-      - ./mediamtx/mediamtx.yml:/mediamtx.yml
+      - ./mediamtx/mediamtx.yml:/mediamtx.yml:ro
     ports:
-      - "8554:8554"   # RTSP
-      - "1935:1935"   # RTMP
-      - "9838:8888"   # Web UI
+      - "8554:8554"     # RTSP
+      - "1935:1935"     # RTMP
+      - "9090:9090"     # API
+    environment:
+      MTX_LOGLEVEL: info
 
   birdnetgo:
     image: ghcr.io/tphakala/birdnet-go:latest
@@ -19,23 +22,20 @@ services:
     depends_on:
       - mediamtx
     volumes:
-      - ./birdnet/birdnet-config.json:/config.json
+      - ./birdnet/birdnet-config.json:/config.json:ro
     environment:
       - RTSP_USER=${RTSP_USER}
       - RTSP_PASS=${RTSP_PASS}
     ports:
-      - "9839:8080"
+      - "9839:8080"     # BirdNET-Go UI
 
   birdcall:
     build: ./birdcall
     container_name: birdcall
     restart: unless-stopped
-    environment:
-      - DISCORD_TOKEN=${DISCORD_TOKEN}
-      - RTMP_URL=${RTMP_URL}
-      - RTSP_USER=${RTSP_USER}
-      - RTSP_PASS=${RTSP_PASS}
-      - BOT_NAME=${BOT_NAME}
-      - BOT_AVATAR_PATH=${BOT_AVATAR_PATH}
     depends_on:
       - mediamtx
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - STREAM_URL=rtmp://mediamtx:1935/birdcall
+      - MEDIAMTX_URL=http://mediamtx:9090
