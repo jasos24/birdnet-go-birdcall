@@ -1,18 +1,17 @@
 use serenity::prelude::*;
 use serenity::model::prelude::*;
-use std::env;
-use crate::streamer;
 
-pub async fn run_reconnect(ctx: &Context, cmd: &ApplicationCommandInteraction) {
-    let rtmp_url = env::var("RTMP_URL").unwrap();
+use crate::pipeline;
+use crate::rtmp;
 
-    tokio::spawn(async move {
-        streamer::start_stream(rtmp_url).await;
-    });
+pub async fn run(ctx: &Context, cmd: &ApplicationCommandInteraction) {
+    let rtmp_url = rtmp::get_rtmp_url();
+
+    pipeline::restart_pipeline(rtmp_url);
 
     cmd.create_interaction_response(&ctx.http, |r| {
-        r.interaction_response_data(|m| {
-            m.content("🔄 BirdCall flapped its wings and refreshed the audio stream.")
-        })
-    }).await.ok();
+        r.interaction_response_data(|d| d.content("🔄 BirdCall refreshed the audio stream."))
+    })
+    .await
+    .ok();
 }
